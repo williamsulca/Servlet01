@@ -1,0 +1,22 @@
+mysql
+//cd ...msql/bin
+mysql -u root -p
+mysqladmin
+
+show databases;
+
+
+create database tesla;
+use tesla;
+show tables;
+create data base vehiculo(id_vehiculo,marca, precio, color);
+insert into vahiculo (id_vehiculo,marca, precio, color)values (1,'mazda',25000,'blanco');
+insert into vehiculo (2,'kia',19000,'negro');
+
+//update vehiculo set color = 'azul' where id_vehiculo = 2;
+//delete from vehiculo where id_vehiculo = 2;
+
+id_vehiculo int,
+marca varchar,
+color varchar,
+precio numeric,

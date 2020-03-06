@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div>Actualizar Datos</div>
+        <input type="text" name="marca" placeholder="marca" id="marca">
+        <input type="text" name="precio" placeholder="precio" id="precio">
+        <input type="text" name="color" placeholder="color" id="color">
+        <button onclick="insertar()">Insertar</button>
+        <div id="rpta"></div>
+        <br>
+        <!--button onclick="consultar()">Consultar</button-->
+        <br>
+        <table id="mytable" cellpadding="1" border="1" style="border-collapse:collapse; width:100%; text-align: center;">
+            <tr>
+                <th>Id</th>
+                <th>Marca</th>
+                <th>Precio Soles</th>
+                <th>Precio Dolar</th>
+                <th>Color</th>
+                <th>Año Fabricación</th>
+                <th>Acciones</th>
+            </tr> 
+
+        </table>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script type="text/javascript">
+
+            consultar();
+            
+            function insertar() {
+                var marca = document.getElementById("marca").value;
+                var precio = document.getElementById("precio").value;
+                var color = document.getElementById("color").value;
+                $.ajax({
+                    method : 'POST',
+                    url    : 'insertar',
+                    data   : {
+                        marca : marca,
+                        precio : precio,
+                        color  : color
+                    },
+                    success: function(msg) {
+                        console.log(msg);
+                        var tabla = document.getElementById("mytable");
+                        var fila = tabla.insertRow(1);
+                        //CREAR CELDAS
+                        var celda0 = fila.insertCell(0);
+                        var celda1 = fila.insertCell(1);
+                        var celda2 = fila.insertCell(2);
+                        var celda3 = fila.insertCell(3);
+                        var celda4 = fila.inseertCell(4);
+                        //PONER UN VALOR EN CADA CELDA
+                        celda0.innerHTML = msg.id_veh;
+                        celda1.innerHTML = marca;
+                        celda2.innerHTML = precio;
+                        celda3.innerHTML = color;
+                        celda4.innerHTML = '<button onclick="borrar(this, '+msg.id_veh+')">Borrar</button>'+
+                            '<button onclick="actualizar('+msg.id_veh+')">Actualizar</button>'
+                            +'<button onclick="ver(this)">Ver</button>';
+                        //alert(msg.mensaje);
+                    },
+                    error: function(msg) {
+                        console.error(msg);
+                    }
+                });
+            }
+
+            function ver(btn){
+               var fila = btn.closest('tr');
+               var marca = fila.cells[1].innerHTML;
+               var precio = fila.cells[2].innerHTML;
+               var color = fila.cells[3].innerHTML;
+               document.getElementById("marca").value = marca;
+               document.getElementById("precio").value = precio;
+               document.getElementById("color").value = color;
+               console.log(marca);
+               console.log(precio);
+               console.log(color);
+            }
+            
+            function actualizar(id_vehiculo){
+               var marca = document.getElementById("marca").value;
+               var precio = document.getElementById("precio").value;
+               var color = document.getElementById("color").value;
+
+                $.ajax({
+                    method: 'POST',
+                    url: 'Actualizar',
+                    data: {
+                        id_veh  : id_vehiculo,
+                        marca   : marca,
+                        precio  : precio,
+                        color   : color
+                    },
+                    success : function (msg){
+                        console.log(msg);
+                        alert(msg.mensaje);
+                        },
+                    error : function (msg){
+                        console.error(msg);
+                        }
+                });
+            }
+            
+            function borrar(btn, id_vehiculo){
+
+                var respuesta = prompt('Escribe OK para eliminar');
+                if (respuesta == 'OK' ) {
+                    var fila = btn.closest('tr');
+                    //LLAMAR A JAVA
+                    $.ajax({
+                        method : 'POST',
+                        url    : 'EliminarServlet',
+                        data   : {
+                                id_veh : id_vehiculo
+                            },
+                        success : function (msg){
+                            console.log(msg);
+                            fila.remove();
+                            alert(msg.mensaje);
+                        },
+                        error : function (msg){
+                            console.error(msg);
+                        }
+                    });
+                }
+
+            }
+            function consultar(){
+                $.ajax({
+                    method : 'POST',
+                    url : 'Consulta',
+                    success : function(msg){
+                        var table = document.getElementById("mytable");
+                        for (var i = 0; i < msg.length; i++) {
+                              console.log(msg[i]);  
+                              var fila = table.insertRow(1);
+                              var celda0 = fila.insertCell(0);
+                              var celda1 = fila.insertCell(1);
+                              var celda2 = fila.insertCell(2);
+                              var celda3 = fila.insertCell(3);
+                              var celda4 = fila.insertCell(4);
+                              var celda5 = fila.insertCell(5);
+                              var celda6 = fila.insertCell(6);
+    
+                              celda0.innerHTML = msg[i].id_vehiculo;
+                              celda1.innerHTML = msg[i].marca;
+                              celda2.innerHTML = msg[i].precio;
+                              celda3.innerHTML = msg[i].Precio_Dolar;
+                              celda4.innerHTML = msg[i].color;
+                              celda5.innerHTML = msg[i].anioFabricacion;
+                              celda6.innerHTML = '<button onclick="borrar(this, '+msg[i].id_vehiculo+');">Borrar</button>'+
+                                      '                '+'<button onclick="actualizar('+msg[i].id_vehiculo+');">Actualizar</button>'+
+                                      '                '+'<button onclick="ver(this);">Ver</button>';
+                        }
+                        //console.log(table);
+
+                    },
+                    error : function(msg){
+                        console.error(msg);
+                    }
+               });
+            }
+            function logear() {
+                var usuario = document.getElementById("user").value;
+                var clave = document.getElementById("pass").value;
+                console.log('haciendo el login. ' + usuario + ' clave: ' + clave);
+                $.ajax({
+                    method: 'POST',
+                    url: 'MiServlet',
+                    data: {
+                        usuario: usuario,
+                        clave: clave
+                    },
+                    success: function (msg) {
+                        console.log(msg);
+                        document.getElementById("rpta").innerHTML = msg.rpta_msj;
+                    },
+                    error: function (msg) {
+                        console.error(msg);
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>
